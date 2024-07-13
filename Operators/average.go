@@ -27,7 +27,7 @@ func AverageInteger(columnNumber uint) AverageIntegerOperator {
 
 // Operate recalculate the new average after adding a new integer to the calculation
 // return - the new average, nil on success, nil and an error otherwise
-func (aio AverageIntegerOperator) Operate(data []any) (any, error) {
+func (aio AverageIntegerOperator) Operate(data ...any) (any, error) {
 	aio.count++
 	intToAdd, ok := data[aio.columnNumber].(int)
 	if !ok {
