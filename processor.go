@@ -71,10 +71,6 @@ func (p Processor) read() error {
 	return nil
 }
 
-func util(data ...any) []any {
-	return data
-}
-
 // process call all the operators added to Processor in order on a given record
 // and write the result to the output file
 // writer - of the output csv file
