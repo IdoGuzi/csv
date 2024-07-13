@@ -1,8 +1,7 @@
 package operators
 
 import (
-	"errors"
-	"fmt"
+	"strconv"
 )
 
 // AverageIntegerOperator is Operator implementing calculation of average on integers
@@ -10,16 +9,18 @@ import (
 // count - current number on integers processed
 // columnNumber - from which column of the row to take the integer
 type AverageIntegerOperator struct {
-	average      int
-	count        uint
+	average      *int
+	count        *uint
 	columnNumber uint
 }
 
 // AverageInteger create the Operator for calculating average of integers
 func AverageInteger(columnNumber uint) AverageIntegerOperator {
+	var count uint = 0
+	var average int = 0
 	operator := AverageIntegerOperator{
-		count:        0,
-		average:      0,
+		count:        &count,
+		average:      &average,
 		columnNumber: columnNumber,
 	}
 	return operator
@@ -27,12 +28,13 @@ func AverageInteger(columnNumber uint) AverageIntegerOperator {
 
 // Operate recalculate the new average after adding a new integer to the calculation
 // return - the new average, nil on success, nil and an error otherwise
-func (aio AverageIntegerOperator) Operate(data ...any) (any, error) {
-	aio.count++
-	intToAdd, ok := data[aio.columnNumber].(int)
-	if !ok {
-		return nil, errors.New(fmt.Sprintf("cannot convert %v to int", data[aio.columnNumber]))
+func (aio AverageIntegerOperator) Operate(data []string) ([]string, error) {
+	intToAdd, err := strconv.Atoi(data[aio.columnNumber])
+	if err != nil {
+		return nil, err
 	}
-	aio.average = (aio.average + intToAdd) / int(aio.count)
-	return aio.average, nil
+	sum := (*aio.average)*int((*aio.count)) + intToAdd
+	*aio.count = (*aio.count) + 1
+	*aio.average = sum / int(*aio.count)
+	return []string{strconv.Itoa(*aio.average)}, nil
 }
