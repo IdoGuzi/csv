@@ -1,5 +1,5 @@
 package csv
 
 type Operator interface {
-	Operate(args ...any) (any, error)
+	Operate(data []string) ([]string, error)
 }

@@ -2,7 +2,6 @@ package csv
 
 import (
 	"encoding/csv"
-	"fmt"
 	"io"
 	"os"
 )
@@ -44,7 +43,7 @@ func (p Processor) read() error {
 	if err != nil {
 		return err
 	}
-	outputFile, err := os.OpenFile(p.outputFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	outputFile, err := os.OpenFile(p.outputFile, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		return err
 	}
@@ -52,8 +51,9 @@ func (p Processor) read() error {
 	defer outputFile.Close()
 	reader := csv.NewReader(inputFile)
 	writer := csv.NewWriter(outputFile)
+	var record []string
 	for {
-		record, err := reader.Read()
+		record, err = reader.Read()
 		if err != nil {
 			break
 		}
@@ -78,26 +78,14 @@ func (p Processor) read() error {
 // return - nil for success, error otherwise
 func (p Processor) process(writer *csv.Writer, record []string) error {
 	var err error
-	var result any = record
+	var result []string = record
 	//by order execute the operators
 	for _, operator := range p.Operators {
 		result, err = operator.Operate(result)
 		if err != nil {
 			return err
 		}
-		//if result is a list convert to list
-		listResult, ok := result.([]any)
-		//if result wasn't a list, create a list and insert the result
-		if !ok {
-			listResult = []any{result}
-		}
-		//convert the output record to strings
-		stringResult := make([]string, 0, len(listResult))
-		for _, val := range listResult {
-			stringResult = append(stringResult, fmt.Sprintf("%v", val))
-		}
-		//write output record
-		writer.Write(stringResult)
+		writer.Write(result)
 	}
 	return nil
 }
